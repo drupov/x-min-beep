@@ -3,7 +3,6 @@ const Main = imports.ui.main
 const PanelMenu = imports.ui.panelMenu
 const ExtensionUtils = imports.misc.extensionUtils
 const Me = ExtensionUtils.getCurrentExtension()
-const GioSSS = Gio.SettingsSchemaSource
 
 const TimerIndicator = GObject.registerClass(
   class TimerIndicator extends PanelMenu.Button {
@@ -19,6 +18,7 @@ const TimerIndicator = GObject.registerClass(
       this.label = new St.Label({
         text: `${this._interval} min beep (${this._remainingTime})`,
         y_align: Clutter.ActorAlign.CENTER,
+        style_class: 'timer-indicator-label',
       })
       this.add_child(this.label)
 

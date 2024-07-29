@@ -1,3 +1,8 @@
+.timer-indicator-label {
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
 .active {
   color: orange;
 }
