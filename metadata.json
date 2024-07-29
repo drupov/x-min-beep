@@ -1,0 +1,8 @@
+{
+  "uuid": "x-min-beep@drupov",
+  "name": "X Min Beep",
+  "description": "Beeps every x minutes, just as a notification that a certain time has passed. That's it. Kind of a reminder that you are spending this time on something.",
+  "shell-version": ["42"],
+  "version": 1,
+  "settings-schema": "org.gnome.shell.extensions.x-min-beep@drupov"
+}

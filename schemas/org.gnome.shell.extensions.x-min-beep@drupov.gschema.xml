@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="org.gnome.shell.extensions.x-min-beep@drupov" path="/org/gnome/shell/extensions/x-min-beep@drupov/">
+        <key name="interval" type="i">
+            <default>15</default>
+            <summary>Interval in minutes</summary>
+            <description>The interval in minutes for the beep sound. Minimum is 1 minute and maximum is 60 minutes.</description>
+            <range min="1" max="60"/>
+        </key>
+    </schema>
+</schemalist>
