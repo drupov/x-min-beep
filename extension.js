@@ -16,7 +16,7 @@ const TimerIndicator = GObject.registerClass(
       this._remainingTime = this._interval
 
       this.label = new St.Label({
-        text: `${this._interval} min beep (${this._remainingTime})`,
+        text: this.printLabel(this._interval),
         y_align: Clutter.ActorAlign.CENTER,
         style_class: 'timer-indicator-label',
       })
@@ -35,7 +35,7 @@ const TimerIndicator = GObject.registerClass(
       }
 
       this._updateLabel = () => {
-        this.label.text = `${this._interval} min beep (${this._remainingTime})`
+        this.label.text = this.printLabel(this._remainingTime)
       }
 
       this._startCountdown = () => {
@@ -87,6 +87,10 @@ const TimerIndicator = GObject.registerClass(
         this._remainingTime = this._interval
         this._updateLabel()
       })
+    }
+
+    printLabel(minutes) {
+      return `Beep in ${minutes} min`
     }
 
     destroy() {
