@@ -64,6 +64,8 @@ const TimerIndicator = GObject.registerClass(
           GLib.source_remove(this._countdownTimeout)
           this._timeout = null
           this._countdownTimeout = null
+          this._remainingTime = this._interval
+          this._updateLabel()
           this.label.remove_style_class_name('active')
         } else {
           this._startCountdown()
