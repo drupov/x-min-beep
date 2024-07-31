@@ -54,11 +54,12 @@ const TimerIndicator = GObject.registerClass(
           () => {
             this._remainingTime--
             this._totalMinutes++
-            this._updateLabel()
-            if (this._remainingTime > 0) {
-              return true
+            if (this._remainingTime <= 0) {
+              this._playBeep()
+              this._remainingTime = this._interval
             }
-            return false
+            this._updateLabel()
+            return true
           }
         )
       }
@@ -80,7 +81,6 @@ const TimerIndicator = GObject.registerClass(
             this._interval * 60,
             () => {
               this._playBeep()
-              this._startCountdown()
               return true
             }
           )
