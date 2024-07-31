@@ -14,9 +14,10 @@ const TimerIndicator = GObject.registerClass(
       )
       this._interval = this._settings.get_int('interval')
       this._remainingTime = this._interval
+      this._totalMinutes = 0
 
       this.label = new St.Label({
-        text: this.printLabel(this._interval),
+        text: this.printLabel(this._remainingTime),
         y_align: Clutter.ActorAlign.CENTER,
         style_class: 'timer-indicator-label',
       })
@@ -35,7 +36,9 @@ const TimerIndicator = GObject.registerClass(
       }
 
       this._updateLabel = () => {
-        this.label.text = this.printLabel(this._remainingTime)
+        this.label.text = this._timeout
+          ? this.printLabel(this._remainingTime, this._totalMinutes)
+          : this.printLabel(this._interval)
       }
 
       this._startCountdown = () => {
@@ -43,12 +46,14 @@ const TimerIndicator = GObject.registerClass(
           GLib.source_remove(this._countdownTimeout)
         }
         this._remainingTime = this._interval
+        this._totalMinutes = 0
         this._updateLabel()
         this._countdownTimeout = GLib.timeout_add_seconds(
           GLib.PRIORITY_DEFAULT,
           60,
           () => {
             this._remainingTime--
+            this._totalMinutes++
             this._updateLabel()
             if (this._remainingTime > 0) {
               return true
@@ -65,6 +70,7 @@ const TimerIndicator = GObject.registerClass(
           this._timeout = null
           this._countdownTimeout = null
           this._remainingTime = this._interval
+          this._totalMinutes = 0
           this._updateLabel()
           this.label.remove_style_class_name('active')
         } else {
@@ -79,6 +85,7 @@ const TimerIndicator = GObject.registerClass(
             }
           )
           this.label.add_style_class_name('active')
+          this._updateLabel()
         }
       })
 
@@ -89,8 +96,10 @@ const TimerIndicator = GObject.registerClass(
       })
     }
 
-    printLabel(minutes) {
-      return `Beep in ${minutes} min`
+    printLabel(remainingMinutes, totalMinutes = null) {
+      return totalMinutes !== null
+        ? `Beep in ${remainingMinutes} min (${totalMinutes})`
+        : `Beep in ${remainingMinutes} min`
     }
 
     destroy() {
