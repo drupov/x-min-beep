@@ -15,6 +15,7 @@ const TimerIndicator = GObject.registerClass(
       this._interval = this._settings.get_int('interval')
       this._remainingTime = this._interval
       this._totalMinutes = 0
+      this._clickCount = 0
 
       this.label = new St.Label({
         text: this.printLabel(this._remainingTime),
@@ -65,28 +66,40 @@ const TimerIndicator = GObject.registerClass(
       }
 
       this.connect('button-press-event', () => {
-        if (this._timeout) {
-          GLib.source_remove(this._timeout)
-          GLib.source_remove(this._countdownTimeout)
-          this._timeout = null
-          this._countdownTimeout = null
-          this._remainingTime = this._interval
-          this._totalMinutes = 0
-          this._updateLabel()
-          this.label.remove_style_class_name('active')
-        } else {
-          this._startCountdown()
-          this._timeout = GLib.timeout_add_seconds(
-            GLib.PRIORITY_DEFAULT,
-            this._interval * 60,
-            () => {
-              this._playBeep()
-              return true
+        this._clickCount++
+
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+          if (this._clickCount === 1) {
+            if (!this._timeout) {
+              this._startCountdown()
+              this._timeout = GLib.timeout_add_seconds(
+                GLib.PRIORITY_DEFAULT,
+                this._interval * 60,
+                () => {
+                  this._playBeep()
+                  return true
+                }
+              )
+              this.label.add_style_class_name('active')
+              this._updateLabel()
             }
-          )
-          this.label.add_style_class_name('active')
-          this._updateLabel()
-        }
+          } else if (this._clickCount === 2) {
+            if (this._timeout) {
+              GLib.source_remove(this._timeout)
+              GLib.source_remove(this._countdownTimeout)
+              this._timeout = null
+              this._countdownTimeout = null
+              this._remainingTime = this._interval
+              this._totalMinutes = 0
+              this._updateLabel()
+              this.label.remove_style_class_name('active')
+            }
+          }
+          this._clickCount = 0
+          return GLib.SOURCE_REMOVE
+        })
+
+        return Clutter.EVENT_STOP
       })
 
       this._settings.connect('changed::interval', () => {
