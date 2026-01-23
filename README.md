@@ -6,4 +6,4 @@ Click on it to start.
 
 Double click to stop.
 
-Required Gnome 46 (Ubuntu 24.04 LTS).
+Requires Gnome 46 (Ubuntu 24.04 LTS).
