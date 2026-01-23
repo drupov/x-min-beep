@@ -6,4 +6,4 @@ Click on it to start.
 
 Double click to stop.
 
-For now tested only on Gnome 42 (Ubuntu 22.04 LTS).
+Required Gnome 46 (Ubuntu 24.04 LTS).

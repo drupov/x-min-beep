@@ -1,17 +1,19 @@
-const { St, Clutter, Gio, GLib, GObject } = imports.gi
-const Main = imports.ui.main
-const PanelMenu = imports.ui.panelMenu
-const ExtensionUtils = imports.misc.extensionUtils
-const Me = ExtensionUtils.getCurrentExtension()
+import St from 'gi://St'
+import Clutter from 'gi://Clutter'
+import GLib from 'gi://GLib'
+import GObject from 'gi://GObject'
+
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js'
+import * as Main from 'resource:///org/gnome/shell/ui/main.js'
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js'
 
 const TimerIndicator = GObject.registerClass(
   class TimerIndicator extends PanelMenu.Button {
-    _init() {
-      super._init(0.0, _('Timer Indicator'))
+    _init(settings, extensionPath) {
+      super._init(0.0, 'Timer Indicator')
 
-      this._settings = ExtensionUtils.getSettings(
-        'org.gnome.shell.extensions.x-min-beep@drupov'
-      )
+      this._settings = settings
+      this._extensionPath = extensionPath
       this._interval = this._settings.get_int('interval')
       this._remainingTime = this._interval
       this._totalMinutes = 0
@@ -29,7 +31,7 @@ const TimerIndicator = GObject.registerClass(
 
       this._playBeep = () => {
         let [success, argv] = GLib.shell_parse_argv(
-          'aplay ' + Me.path + '/assets/beep.wav'
+          'aplay ' + this._extensionPath + '/assets/beep.wav',
         )
         if (success) {
           GLib.spawn_async(null, argv, null, GLib.SpawnFlags.SEARCH_PATH, null)
@@ -61,7 +63,7 @@ const TimerIndicator = GObject.registerClass(
             }
             this._updateLabel()
             return true
-          }
+          },
         )
       }
 
@@ -78,7 +80,7 @@ const TimerIndicator = GObject.registerClass(
                 () => {
                   this._playBeep()
                   return true
-                }
+                },
               )
               this.label.add_style_class_name('active')
               this._updateLabel()
@@ -124,16 +126,17 @@ const TimerIndicator = GObject.registerClass(
       }
       super.destroy()
     }
-  }
+  },
 )
 
-class Extension {
-  constructor() {
+export default class XMinBeepExtension extends Extension {
+  constructor(metadata) {
+    super(metadata)
     this._indicator = null
   }
 
   enable() {
-    this._indicator = new TimerIndicator()
+    this._indicator = new TimerIndicator(this.getSettings(), this.path)
     Main.panel.addToStatusArea('timer-indicator', this._indicator)
   }
 
@@ -143,8 +146,4 @@ class Extension {
       this._indicator = null
     }
   }
-}
-
-function init() {
-  return new Extension()
 }
