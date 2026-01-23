@@ -2,6 +2,7 @@ import St from 'gi://St'
 import Clutter from 'gi://Clutter'
 import GLib from 'gi://GLib'
 import GObject from 'gi://GObject'
+import Pango from 'gi://Pango'
 
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js'
 import * as Main from 'resource:///org/gnome/shell/ui/main.js'
@@ -19,12 +20,28 @@ const TimerIndicator = GObject.registerClass(
       this._totalMinutes = 0
       this._clickCount = 0
 
+      this._box = new St.BoxLayout({
+        style_class: 'panel-status-menu-box',
+      })
+
+      this._icon = new St.Icon({
+        icon_name: 'alarm-symbolic',
+        style_class: 'system-status-icon x-min-beep-icon',
+      })
+      this._box.add_child(this._icon)
+
       this.label = new St.Label({
         text: this.printLabel(this._remainingTime),
+        x_align: Clutter.ActorAlign.CENTER,
         y_align: Clutter.ActorAlign.CENTER,
         style_class: 'timer-indicator-label',
       })
-      this.add_child(this.label)
+      this.label.clutter_text.single_line_mode = true
+      this.label.clutter_text.line_wrap = false
+      this.label.clutter_text.ellipsize = Pango.EllipsizeMode.NONE
+      this.label.clip_to_allocation = true
+      this._box.add_child(this.label)
+      this.add_child(this._box)
 
       this._timeout = null
       this._countdownTimeout = null
@@ -82,7 +99,8 @@ const TimerIndicator = GObject.registerClass(
                   return true
                 },
               )
-              this.label.add_style_class_name('active')
+              this.label.add_style_class_name('x-min-beep-active')
+              this._icon.add_style_class_name('x-min-beep-active')
               this._updateLabel()
             }
           } else if (this._clickCount === 2) {
@@ -94,7 +112,8 @@ const TimerIndicator = GObject.registerClass(
               this._remainingTime = this._interval
               this._totalMinutes = 0
               this._updateLabel()
-              this.label.remove_style_class_name('active')
+              this.label.remove_style_class_name('x-min-beep-active')
+              this._icon.remove_style_class_name('x-min-beep-active')
             }
           }
           this._clickCount = 0
@@ -113,8 +132,8 @@ const TimerIndicator = GObject.registerClass(
 
     printLabel(remainingMinutes, totalMinutes = null) {
       return totalMinutes !== null
-        ? `Beep in ${remainingMinutes} min (${totalMinutes})`
-        : `Beep in ${remainingMinutes} min`
+        ? `${remainingMinutes}·${totalMinutes}`
+        : `${remainingMinutes}`
     }
 
     destroy() {

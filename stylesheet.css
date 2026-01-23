@@ -1,7 +1,16 @@
 .timer-indicator-label {
-  min-width: 100px;
+  min-width: 0px;
+  padding-left: 6px;
+  padding-right: 6px;
+  text-align: center;
 }
 
-.active {
+.timer-indicator-label.x-min-beep-active {
+  color: #f47e00;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.x-min-beep-icon.x-min-beep-active {
   color: #f47e00;
 }
