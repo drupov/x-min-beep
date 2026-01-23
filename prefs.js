@@ -1,45 +1,38 @@
-const { GObject, Gtk, Gio } = imports.gi
-const ExtensionUtils = imports.misc.extensionUtils
+import Adw from 'gi://Adw'
+import Gtk from 'gi://Gtk'
 
-function init() {}
+import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js'
 
-function buildPrefsWidget() {
-  let settings = ExtensionUtils.getSettings(
-    'org.gnome.shell.extensions.x-min-beep@drupov'
-  )
+export default class XMinBeepPreferences extends ExtensionPreferences {
+  fillPreferencesWindow(window) {
+    const settings = this.getSettings()
 
-  let widget = new Gtk.Grid({
-    column_homogeneous: true,
-    row_spacing: 10,
-    column_spacing: 10,
-    margin_start: 20,
-    margin_end: 20,
-    margin_top: 20,
-    margin_bottom: 20,
-  })
+    const page = new Adw.PreferencesPage()
+    const group = new Adw.PreferencesGroup()
 
-  let label = new Gtk.Label({
-    label: 'Beep interval (minutes)',
-    hexpand: true,
-    halign: Gtk.Align.START,
-  })
-  widget.attach(label, 0, 0, 1, 1)
+    const adjustment = new Gtk.Adjustment({
+      lower: 1,
+      upper: 60,
+      step_increment: 1,
+    })
 
-  let adjustment = new Gtk.Adjustment({
-    lower: 1,
-    upper: 60,
-    step_increment: 1,
-  })
-  let spinButton = new Gtk.SpinButton({
-    adjustment: adjustment,
-  })
-  spinButton.set_value(settings.get_int('interval'))
-  widget.attach(spinButton, 1, 0, 1, 1)
+    const spinButton = new Gtk.SpinButton({
+      adjustment,
+      valign: Gtk.Align.CENTER,
+    })
+    spinButton.set_value(settings.get_int('interval'))
+    spinButton.connect('value-changed', (button) => {
+      settings.set_int('interval', button.get_value_as_int())
+    })
 
-  spinButton.connect('value-changed', (button) => {
-    settings.set_int('interval', button.get_value_as_int())
-  })
+    const row = new Adw.ActionRow({
+      title: 'Beep interval (minutes)',
+    })
+    row.add_suffix(spinButton)
+    row.activatable_widget = spinButton
 
-  widget.show()
-  return widget
+    group.add(row)
+    page.add(group)
+    window.add(page)
+  }
 }
