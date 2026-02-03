@@ -45,6 +45,7 @@ const TimerIndicator = GObject.registerClass(
 
       this._timeout = null
       this._countdownTimeout = null
+      this._startUsec = null
 
       this._playBeep = () => {
         let [success, argv] = GLib.shell_parse_argv(
@@ -67,17 +68,15 @@ const TimerIndicator = GObject.registerClass(
         }
         this._remainingTime = this._interval
         this._totalMinutes = 0
+        this._startUsec = GLib.get_monotonic_time()
         this._updateLabel()
         this._countdownTimeout = GLib.timeout_add_seconds(
           GLib.PRIORITY_DEFAULT,
           60,
           () => {
-            this._remainingTime--
-            this._totalMinutes++
-            if (this._remainingTime <= 0) {
-              this._playBeep()
-              this._remainingTime = this._interval
-            }
+            const elapsedSec =
+              (GLib.get_monotonic_time() - this._startUsec) / 1000000
+            this._totalMinutes = Math.floor(elapsedSec / (this._interval * 60))
             this._updateLabel()
             return true
           },
@@ -96,6 +95,14 @@ const TimerIndicator = GObject.registerClass(
                 this._interval * 60,
                 () => {
                   this._playBeep()
+                  if (this._startUsec !== null) {
+                    const elapsedSec =
+                      (GLib.get_monotonic_time() - this._startUsec) / 1000000
+                    this._totalMinutes = Math.floor(
+                      elapsedSec / (this._interval * 60),
+                    )
+                    this._updateLabel()
+                  }
                   return true
                 },
               )
@@ -111,6 +118,7 @@ const TimerIndicator = GObject.registerClass(
               this._countdownTimeout = null
               this._remainingTime = this._interval
               this._totalMinutes = 0
+              this._startUsec = null
               this._updateLabel()
               this.label.remove_style_class_name('x-min-beep-active')
               this._icon.remove_style_class_name('x-min-beep-active')
