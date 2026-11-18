@@ -24,12 +24,6 @@ const TimerIndicator = GObject.registerClass(
         style_class: 'panel-status-menu-box',
       })
 
-      this._icon = new St.Icon({
-        icon_name: 'alarm-symbolic',
-        style_class: 'system-status-icon x-min-beep-icon',
-      })
-      this._box.add_child(this._icon)
-
       this.label = new St.Label({
         text: this.printLabel(this._remainingTime),
         x_align: Clutter.ActorAlign.CENTER,
@@ -107,7 +101,6 @@ const TimerIndicator = GObject.registerClass(
                 },
               )
               this.label.add_style_class_name('x-min-beep-active')
-              this._icon.add_style_class_name('x-min-beep-active')
               this._updateLabel()
             }
           } else if (this._clickCount === 2) {
@@ -121,7 +114,6 @@ const TimerIndicator = GObject.registerClass(
               this._startUsec = null
               this._updateLabel()
               this.label.remove_style_class_name('x-min-beep-active')
-              this._icon.remove_style_class_name('x-min-beep-active')
             }
           }
           this._clickCount = 0
