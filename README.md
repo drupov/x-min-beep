@@ -6,4 +6,6 @@ Click on it to start.
 
 Double click to stop.
 
+Right click to open settings.
+
 Requires Gnome 46 (Ubuntu 24.04 LTS).
