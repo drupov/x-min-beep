@@ -10,11 +10,12 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js'
 
 const TimerIndicator = GObject.registerClass(
   class TimerIndicator extends PanelMenu.Button {
-    _init(settings, extensionPath) {
+    _init(settings, extensionPath, openPreferences) {
       super._init(0.0, 'Timer Indicator')
 
       this._settings = settings
       this._extensionPath = extensionPath
+      this._openPreferences = openPreferences
       this._interval = this._settings.get_int('interval')
       this._remainingTime = this._interval
       this._totalMinutes = 0
@@ -77,7 +78,16 @@ const TimerIndicator = GObject.registerClass(
         )
       }
 
-      this.connect('button-press-event', () => {
+      this.connect('button-press-event', (_actor, event) => {
+        if (event.get_button() === Clutter.BUTTON_SECONDARY) {
+          this._openPreferences()
+          return Clutter.EVENT_STOP
+        }
+
+        if (event.get_button() !== Clutter.BUTTON_PRIMARY) {
+          return Clutter.EVENT_STOP
+        }
+
         this._clickCount++
 
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
@@ -155,7 +165,11 @@ export default class XMinBeepExtension extends Extension {
   }
 
   enable() {
-    this._indicator = new TimerIndicator(this.getSettings(), this.path)
+    this._indicator = new TimerIndicator(
+      this.getSettings(),
+      this.path,
+      () => this.openPreferences(),
+    )
     Main.panel.addToStatusArea('timer-indicator', this._indicator)
   }
 
